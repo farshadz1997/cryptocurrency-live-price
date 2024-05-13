@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  django:
+    build: .
+    container_name: django_app
+    restart: always
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && daphne core.asgi:application -b 0.0.0.0 -p 8000"
+    volumes:
+      - .:/django_cryptocurrency_project
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - pgdb
+      - redis
+  redis:
+    image: redis:alpine
+    restart: always
+    container_name: redis
+    volumes:
+      - redisdata:/data
+  celery_beat:
+    container_name: celery_beat
+    build: .
+    command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - celery_worker
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - .:/django_cryptocurrency_project  
+  celery_worker:
+    container_name: celery_worker
+    build: .
+    command: celery -A core worker --loglevel=INFO
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - .:/django_cryptocurrency_project
+  pgdb:
+    image: postgres:latest
+    container_name: pgdb
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+volumes:
+  pgdata: 
+  redisdata: 

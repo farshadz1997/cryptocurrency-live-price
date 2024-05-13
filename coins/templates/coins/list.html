@@ -1,0 +1,54 @@
+{%extends "base.html"%}
+{%load humanize coins%}
+{%block title%}All coins{%endblock%}
+{%block content%}
+<div class="container" align="center">
+    <div class="row" align="center">
+        <div class="col-lg-12">
+            <br>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Coins</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Symbol</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Market Cap</th>
+                                <th scope="col">Change 24h</th>
+                                <th scope="col">Change 7 Days</th>
+                                <th scope="col">Change 30 Days</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for coin in coins.data%}
+                            <tr id="{{coin.symbol}}">
+                                <td>{{coin.cmc_rank}}</td>
+                                <td>{{coin.name}}</td>
+                                <td>{{coin.symbol}}</td>
+                                <td style="color: blue">${{coin.quote.USD.price|floatformat:2|intcomma}}</td>
+                                <td>${{coin.quote.USD.market_cap|intcomma}}</td>
+                                <td style="color: {%color_tag coin.quote.USD.percent_change_24h%}">
+                                    {{coin.quote.USD.percent_change_24h|floatformat:2}}%</td>
+                                <td style="color: {%color_tag coin.quote.USD.percent_change_7d%}">
+                                    {{coin.quote.USD.percent_change_7d|floatformat:2}}%</td>
+                                <td style="color: {%color_tag coin.quote.USD.percent_change_30d%}">
+                                    {{coin.quote.USD.percent_change_30d|floatformat:2}}%</td>
+                            </tr>
+                            {%empty%}
+                            <tr>
+                                <td colspan="7">No coins found</td>
+                            </tr>
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
